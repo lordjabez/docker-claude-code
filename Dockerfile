@@ -19,4 +19,9 @@ ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 RUN uv python install
 
-ENTRYPOINT ["claude", "--dangerously-skip-permissions", "-p"]
+COPY --chown=claude:claude entrypoint.bash /home/claude/entrypoint.bash
+COPY --chown=claude:claude hooks/ /home/claude/hooks/
+RUN mkdir -p /home/claude/workspace
+
+WORKDIR /home/claude/workspace
+ENTRYPOINT ["/home/claude/entrypoint.bash"]

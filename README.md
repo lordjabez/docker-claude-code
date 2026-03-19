@@ -5,7 +5,7 @@ sandboxed task runner: mount a workspace, pass a prompt, get results.
 
 ## What's included
 
-- Claude Code CLI (headless/`-p` mode with permissions skipped)
+- Claude Code CLI (headless/`-p` mode with permissions skipped, defaults to `claude-opus-4-6`)
 - Python (latest CPython via uv)
 - uv package manager
 - Standard bash utilities (bash, curl, jq)
@@ -54,22 +54,72 @@ docker run --rm \
 
 ## Workspace
 
-Mount a directory to `/home/claude/workspace` to give Claude Code files to work with:
+Claude runs inside `/home/claude/workspace`, isolated from hooks and config.
+Mount or copy files there to give Claude something to work with:
 
 ```bash
 docker run --rm \
   -e ANTHROPIC_API_KEY \
   -v $(pwd):/home/claude/workspace \
-  lordjabez/claude-code:latest "refactor the code in workspace/"
+  lordjabez/claude-code:latest "refactor the code"
 ```
+
+## Model override
+
+The default model is `claude-opus-4-6`. Override it with the `CLAUDE_MODEL` env var:
+
+```bash
+docker run --rm -e ANTHROPIC_API_KEY -e CLAUDE_MODEL=claude-sonnet-4-6 \
+  lordjabez/claude-code:latest "your prompt here"
+```
+
+## Building derivative images
+
+The image is designed as a base for specialized task runners. Child images can
+install tools, bake in config and data, and wire up pre/post hooks that run
+around the Claude invocation.
+
+```dockerfile
+FROM lordjabez/claude-code:latest
+
+# Install additional tools
+RUN uv pip install pandas
+
+# Bake in Claude config
+COPY claude/ /home/claude/.claude/
+
+# Bake in data or workspace files
+COPY data/ /home/claude/workspace/
+
+# Optional: add pre/post hooks
+COPY hooks/pre.py /home/claude/hooks/pre.py
+COPY hooks/post.py /home/claude/hooks/post.py
+```
+
+Hooks live in `/home/claude/hooks/` and are executed via `uv run`, so they have
+access to any Python packages installed in the image:
+
+- `pre.py` runs before Claude and receives the prompt as `sys.argv[1]`
+- `post.py` runs after Claude and receives the prompt as `sys.argv[1]` and the response as `sys.argv[2]`
+
+Both are optional. If absent, they are silently skipped.
 
 ## Security model
 
 - Runs as a non-root `claude` user
+- Claude's working directory is `/home/claude/workspace`, keeping hooks and config out of reach
 - `--dangerously-skip-permissions` is set because the container itself is the
   permission boundary
 - Auto-updates and telemetry are disabled
 
+## Development
+
+Helper scripts in `bin/` for local development:
+
+- `bin/build.bash` — builds the image locally as `lordjabez/claude-code:latest`
+- `bin/run.bash` — runs a prompt against the local image
+- `bin/push.bash` — pushes the image to Docker Hub
+
 ## License
 
-MIT
+MIT-0
