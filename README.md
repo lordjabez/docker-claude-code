@@ -1,7 +1,7 @@
 # docker-claude-code
 
 A minimal Docker image for running Claude Code in headless mode. Designed as a
-sandboxed task runner: mount a workspace, pass a prompt, get results.
+sandboxed task runner: pass a JSON input object, get results.
 
 ## What's included
 
@@ -15,6 +15,17 @@ sandboxed task runner: mount a workspace, pass a prompt, get results.
 This image is intentionally minimal. No git, no SSH, no development toolchains
 beyond Python. The container is the sandbox boundary.
 
+## Input format
+
+The container accepts a JSON object as its argument. The `prompt` key is
+required and is passed to Claude. The full JSON object is forwarded to
+pre/post hooks, so child images can include additional keys for their own use.
+
+```bash
+docker run --rm -e ANTHROPIC_API_KEY \
+  lordjabez/claude-code:latest '{"prompt": "say hello"}'
+```
+
 ## Authentication
 
 Pass credentials via environment variables. The image supports multiple backends:
@@ -23,7 +34,7 @@ Pass credentials via environment variables. The image supports multiple backends
 
 ```bash
 docker run --rm -e ANTHROPIC_API_KEY \
-  lordjabez/claude-code:latest "your prompt here"
+  lordjabez/claude-code:latest '{"prompt": "your prompt here"}'
 ```
 
 **AWS Bedrock:**
@@ -35,7 +46,7 @@ docker run --rm \
   -e AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY \
   -e AWS_SESSION_TOKEN \
-  lordjabez/claude-code:latest "your prompt here"
+  lordjabez/claude-code:latest '{"prompt": "your prompt here"}'
 ```
 
 On ECS/Fargate, the task role provides credentials automatically; only
@@ -49,7 +60,7 @@ docker run --rm \
   -e CLOUD_ML_REGION=us-east5 \
   -e ANTHROPIC_VERTEX_PROJECT_ID=my-project \
   -v ~/.config/gcloud:/home/claude/.config/gcloud:ro \
-  lordjabez/claude-code:latest "your prompt here"
+  lordjabez/claude-code:latest '{"prompt": "your prompt here"}'
 ```
 
 ## Workspace
@@ -61,7 +72,7 @@ Mount or copy files there to give Claude something to work with:
 docker run --rm \
   -e ANTHROPIC_API_KEY \
   -v $(pwd):/home/claude/workspace \
-  lordjabez/claude-code:latest "refactor the code"
+  lordjabez/claude-code:latest '{"prompt": "refactor the code"}'
 ```
 
 ## Model override
@@ -70,7 +81,7 @@ The default model is `claude-opus-4-6`. Override it with the `CLAUDE_MODEL` env 
 
 ```bash
 docker run --rm -e ANTHROPIC_API_KEY -e CLAUDE_MODEL=claude-sonnet-4-6 \
-  lordjabez/claude-code:latest "your prompt here"
+  lordjabez/claude-code:latest '{"prompt": "your prompt here"}'
 ```
 
 ## Building derivative images
@@ -88,7 +99,7 @@ RUN uv pip install pandas
 # Bake in Claude config
 COPY claude/ /home/claude/.claude/
 
-# Bake in data or workspace files
+# Optional: bake in data or workspace files
 COPY data/ /home/claude/workspace/
 
 # Optional: add pre/post hooks
@@ -99,8 +110,8 @@ COPY hooks/post.py /home/claude/hooks/post.py
 Hooks live in `/home/claude/hooks/` and are executed via `uv run`, so they have
 access to any Python packages installed in the image:
 
-- `pre.py` runs before Claude and receives the prompt as `sys.argv[1]`
-- `post.py` runs after Claude and receives the prompt as `sys.argv[1]` and the response as `sys.argv[2]`
+- `pre.py` runs before Claude and receives the full JSON input as `sys.argv[1]`
+- `post.py` runs after Claude and receives the full JSON input as `sys.argv[1]` and Claude's response as `sys.argv[2]`
 
 Both are optional. If absent, they are silently skipped.
 
@@ -116,8 +127,8 @@ Both are optional. If absent, they are silently skipped.
 
 Helper scripts in `bin/` for local development:
 
-- `bin/build.bash` — builds the image locally as `lordjabez/claude-code:latest`
-- `bin/run.bash` — runs a prompt against the local image
+- `bin/build.bash` — builds the image locally
+- `bin/run.bash` — runs a JSON input containing a prompt against the local image
 - `bin/push.bash` — pushes the image to Docker Hub
 
 ## License

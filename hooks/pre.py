@@ -1,13 +1,14 @@
 """Pre-hook: runs before the Claude invocation.
 
-sys.argv[1] contains the prompt.
+sys.argv[1] contains the full JSON input object.
 """
 
+import json
 import sys
 
 
 def main() -> None:
-    prompt = sys.argv[1]
+    input_data = json.loads(sys.argv[1])
 
 
 if __name__ == "__main__":

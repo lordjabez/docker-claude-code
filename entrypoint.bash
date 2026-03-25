@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-prompt="$*"
+input="$*"
+
+# Extract the prompt from the JSON input
+prompt=$(echo "${input}" | jq -r '.prompt')
 
 # Run pre-hook if provided by child image
 if [[ -f /home/claude/hooks/pre.py ]]; then
     echo "Running pre-hook"
-    uv run /home/claude/hooks/pre.py "${prompt}"
+    uv run /home/claude/hooks/pre.py "${input}"
     echo "Pre-hook complete"
 fi
 
@@ -27,7 +30,7 @@ echo "${response}"
 # Run post-hook if provided by child image
 if [[ -f /home/claude/hooks/post.py ]]; then
     echo "Running post-hook"
-    uv run /home/claude/hooks/post.py "${prompt}" "${response}"
+    uv run /home/claude/hooks/post.py "${input}" "${response}"
     echo "Post-hook complete"
 fi
 

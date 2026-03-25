@@ -3,4 +3,4 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-docker push lordjabez/claude-code
+docker push lordjabez/claude-code:latest

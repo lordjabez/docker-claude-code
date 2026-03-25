@@ -9,7 +9,7 @@ Minimal Docker image for running Claude Code as a headless task runner.
 - `hooks/pre.py` — no-op pre-hook example; child images replace with their own
 - `hooks/post.py` — no-op post-hook example; child images replace with their own
 - `bin/build.bash` — builds the image locally
-- `bin/run.bash` — runs a prompt against the local image (mounts local `claude/` directory as `.claude` config)
+- `bin/run.bash` — runs a JSON input containing a prompt against the local image
 - `bin/push.bash` — pushes the image to Docker Hub
 
 ## Design principles
