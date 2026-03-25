@@ -123,13 +123,19 @@ Both are optional. If absent, they are silently skipped.
   permission boundary
 - Auto-updates and telemetry are disabled
 
+## CI/CD
+
+A GitHub Actions workflow builds and pushes the image on every push to `main`.
+Each build is tagged `latest` plus the installed Claude Code CLI version (e.g.
+`2.1.83`). Images are built for both linux/amd64 and linux/arm64.
+
 ## Development
 
 Helper scripts in `bin/` for local development:
 
 - `bin/build.bash` — builds the image locally
 - `bin/run.bash` — runs a JSON input containing a prompt against the local image
-- `bin/push.bash` — pushes the image to Docker Hub
+- `bin/push.bash` — pushes the image to Docker Hub (manual fallback)
 
 ## License
 
