@@ -1,4 +1,6 @@
-# docker-claude-code
+# Docker for Claude Code
+
+[![Docker Hub](https://github.com/lordjabez/docker-claude-code/actions/workflows/publish.yml/badge.svg)](https://github.com/lordjabez/docker-claude-code/actions/workflows/publish.yml)
 
 A minimal Docker image for running Claude Code in headless mode. Designed as a
 sandboxed task runner: pass a JSON input object, get results.

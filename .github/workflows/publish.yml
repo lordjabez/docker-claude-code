@@ -23,8 +23,6 @@ jobs:
           context: .
           load: true
           tags: lordjabez/claude-code:local
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Extract Claude Code version
         id: version
