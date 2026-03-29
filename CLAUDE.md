@@ -25,7 +25,7 @@ Minimal Docker image for running Claude Code as a headless task runner.
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/publish.yml`) builds and pushes on every push to main. The image is tagged `latest` plus the installed Claude Code CLI version (e.g. `2.1.83`). Multi-platform: linux/amd64 and linux/arm64. Requires `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets.
+GitHub Actions workflow (`.github/workflows/publish.yml`) builds and pushes on every push to main, on manual dispatch, and on a daily schedule (midnight UTC). The daily run checks the latest `@anthropic-ai/claude-code` npm version against existing Docker Hub tags and only publishes when a new version is available. The image is tagged `latest` plus the installed Claude Code CLI version (e.g. `2.1.83`). Multi-platform: linux/amd64 and linux/arm64. Requires `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets.
 
 ## Image registry
 
