@@ -7,4 +7,5 @@ input="${1}"
 
 docker run --rm \
   -e ANTHROPIC_API_KEY \
+  --tty \
   lordjabez/claude-code:latest "${input}"

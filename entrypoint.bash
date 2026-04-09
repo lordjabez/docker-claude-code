@@ -27,19 +27,19 @@ echo "${prompt}"
 cd /home/claude/workspace
 exit_code=0
 claude_start=$(now_ms)
-response=$(claude --model "${CLAUDE_MODEL:-claude-opus-4-6}" \
+claude --model "${CLAUDE_MODEL:-claude-opus-4-6}" \
     --dangerously-skip-permissions \
+    --output-format stream-json \
+    --include-hook-events \
+    --verbose \
     --print \
-    "${prompt}") || exit_code=$?
+    "${prompt}" || exit_code=$?
 echo "Claude completed in $(elapsed "${claude_start}")s (exit code ${exit_code})"
-
-# Always emit the response to stdout
-echo "${response}"
 
 # Run post-hook if provided by child image
 if [[ -f /home/claude/hooks/post.py ]]; then
     post_start=$(now_ms)
-    uv run /home/claude/hooks/post.py "${input}" "${response}"
+    uv run /home/claude/hooks/post.py "${input}"
     echo "Post-hook completed in $(elapsed "${post_start}")s"
 fi
 
