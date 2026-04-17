@@ -27,7 +27,8 @@ echo "${prompt}"
 cd /home/claude/workspace
 exit_code=0
 claude_start=$(now_ms)
-claude --model "${CLAUDE_MODEL:-claude-opus-4-6}" \
+claude --model "${CLAUDE_MODEL:-claude-opus-4-7}" \
+    --effort max \
     --dangerously-skip-permissions \
     --output-format stream-json \
     --include-hook-events \
